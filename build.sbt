@@ -10,5 +10,8 @@ lazy val root = (project in file("."))
       "org.apache.spark" %% "spark-sql-kafka-0-10" % "3.5.6" % "provided",
       "org.scalatest" %% "scalatest" % "3.2.19" % Test
     ),
-    Test / fork := true
+    Test / fork := true,
+    Test / javaOptions ++= Seq(
+      "--add-opens=java.base/sun.nio.ch=ALL-UNNAMED"
+    )
   )
