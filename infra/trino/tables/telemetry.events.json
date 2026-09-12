@@ -1,0 +1,23 @@
+{
+  "tableName": "events",
+  "schemaName": "telemetry",
+  "topicName": "telemetry.events.v1",
+  "key": {
+    "dataFormat": "raw",
+    "fields": [
+      {"name": "partition_key", "type": "VARCHAR", "mapping": "_key"}
+    ]
+  },
+  "message": {
+    "dataFormat": "json",
+    "fields": [
+      {"name": "tenant_id", "mapping": "tenantId", "type": "VARCHAR"},
+      {"name": "device_id", "mapping": "deviceId", "type": "VARCHAR"},
+      {"name": "event_id", "mapping": "eventId", "type": "VARCHAR"},
+      {"name": "recorded_at", "mapping": "recordedAt", "type": "VARCHAR"},
+      {"name": "metric", "mapping": "metric", "type": "VARCHAR"},
+      {"name": "value", "mapping": "value", "type": "DOUBLE"},
+      {"name": "severity", "mapping": "severity", "type": "VARCHAR"}
+    ]
+  }
+}

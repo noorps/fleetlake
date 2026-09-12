@@ -1,0 +1,68 @@
+services:
+  kafka:
+    image: apache/kafka:3.9.0
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  spark-job:
+    image: apache/spark:3.5.6
+    command:
+      - /opt/spark/bin/spark-submit
+      - --packages
+      - org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.6
+      - --class
+      - dev.noorps.fleetlake.FleetLakeJob
+      - /opt/fleetlake/fleetlake_2.12-0.1.0.jar
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LAKE_PATH: /data/telemetry
+      CHECKPOINT_PATH: /data/checkpoints
+    volumes:
+      - ./target/scala-2.12/fleetlake_2.12-0.1.0.jar:/opt/fleetlake/fleetlake_2.12-0.1.0.jar:ro
+      - fleet-data:/data
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.1.4
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: -Xms512m -Xmx512m
+    ports: ["9200:9200"]
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:9.1.4
+    volumes:
+      - ./infra/logstash/pipeline.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+    depends_on:
+      kafka:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_started
+
+  trino:
+    image: trinodb/trino:483
+    ports: ["8081:8080"]
+    volumes:
+      - ./infra/trino/catalog:/etc/trino/catalog:ro
+      - ./infra/trino/tables:/etc/trino/kafka:ro
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+volumes:
+  fleet-data:
