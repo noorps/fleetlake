@@ -16,3 +16,8 @@ jobs:
           java-version: "17"
           cache: sbt
       - run: sbt test
+      - run: sbt "Test / runMain dev.noorps.fleetlake.FleetLakeBenchmark 200000 2 5"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fleetlake-benchmark
+          path: benchmarks/latest.json
