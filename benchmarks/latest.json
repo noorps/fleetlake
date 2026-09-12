@@ -1,0 +1,18 @@
+{
+  "eventVolume": 200000,
+  "warmupRuns": 2,
+  "measuredRuns": 5,
+  "durationsMillis": [3032, 3050, 2739, 2730, 2591],
+  "medianBatchMillis": 2739,
+  "p95BatchMillis": 3050,
+  "medianEventsPerSecond": 73019,
+  "uniqueEvents": 190000,
+  "aggregateRows": 18000,
+  "faultEvents": 7600,
+  "sparkVersion": "3.5.6",
+  "javaVersion": "17.0.20.1",
+  "availableProcessors": 4,
+  "mode": "local[*]",
+  "scope": "parse, watermark, deduplicate, cache, aggregate, and fault-filter transforms; no external sink I/O",
+  "githubActionsRun": 34717694507
+}

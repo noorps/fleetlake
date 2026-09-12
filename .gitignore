@@ -8,4 +8,5 @@ project/project/
 data/
 checkpoints/
 tmp/
+benchmarks/ci/
 *.log
